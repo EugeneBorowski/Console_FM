@@ -13,7 +13,7 @@ namespace Console_FM
 
     class CMD
     {
-        public static List<string> listInfo = new();
+        public static List<string> listInfo = new(); //Список для блока информации 
 
         public static void ClearCurrentConsoleLine(int from,int to)
         {
@@ -107,38 +107,43 @@ namespace Console_FM
                     path = Program.curDir;
                 var separator = new string('-', dimension);
                 var dirList = new DirectoryInfo(path);
-                DirectoryInfo[] dirs = dirList.GetDirectories();
-                FileInfo[] files = dirList.GetFiles();
-                if (dimension >= Program.pagingLevel)
-                    return;
-                foreach (var e in dirs)
+                if (dirList.Exists)
                 {
-                    PrintFiles($"{separator}dir: {e.Name}");
-                    var tempDir = path + @"\" + e.Name;
-                    List(tempDir, ++dimension);
-                    dimension--;
+                    DirectoryInfo[] dirs = dirList.GetDirectories();
+                    FileInfo[] files = dirList.GetFiles();
+                    if (dimension > Program.pagingLevel)
+                        return;
+                    foreach (var e in dirs)
+                    {
+                        PrintFiles($"{separator}dir: {e.Name}");
+                        var tempDir = path + @"\" + e.Name;
+                        List(tempDir, ++dimension);
+                        dimension--;
+                    }
+
+                    foreach (var e in files)
+                    {
+                        PrintFiles($"{separator}file: {e.Name}");
+                    }
+
+                    static void PrintFiles(string text)
+                    {
+                        Program.DirList.Add(text);
+                    }
+                }
+                else
+                {
+                    listInfo.Add("Директория не найдена");
+                    InfoWriter(listInfo.ToString());
                 }
 
-                foreach (var e in files)
-                {
-                    PrintFiles($"{separator}file: {e.Name}");
-                }
-
-                static void PrintFiles(string text)
-                {
-                    Program.DirList.Add(text);
-                }
-
-                foreach (var e in Program.DirList)
-                {
-                    Console.WriteLine(e);
-                }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Program.Logger(e.Message);
+                listInfo.Add(e.Message);
+                InfoWriter(listInfo.ToString());
             }
-            
         }
         
         public static void Copy(string param)

@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Configuration;
 
 namespace Console_FM
 {
     class Program
-    { //5-33
+    { //4-33
         public static int pagingLevel = 2;//уроень пейджинга по-умолчанию
         public static string input = "";
-        public static string curDir = AppDomain.CurrentDomain.BaseDirectory;//текущая папка
+        public static string curDir = AppDomain.CurrentDomain.BaseDirectory;//текущая папка, заплатка под изменяющуюся директорию в будущем
         public static readonly string startDir = AppDomain.CurrentDomain.BaseDirectory;//директория откуда запускается приложение
-        public static List<string> DirList = new();//список директорий и файлов для постраничного вывода
+        public static List<string> DirList = new();//список директорий и файлов полученный с команды
         public static string logpath = startDir + "errors" + Path.DirectorySeparatorChar + "errors.log";//путь для логов
-
-        static void CommandParcer(string input)
+        private static int maxListarray = 29;//стандартная высота блока выврда папок и файлов
+        
+        static void CommandParcer(string input)//парсер команд, разделяет команду и параметры
         {
             var command = "";
             var paramStr = "";
@@ -34,8 +36,12 @@ namespace Console_FM
             switch (command)
             {
                 case "list":
+                    DirList.Clear();
                     var dimension = 0;
                     CMD.List(paramStr,dimension);
+                    ListShow(1);
+                    curDir = paramStr;
+                    UpdateSettings("directory", curDir);
                     return;
                 case "copy":
                     CMD.Copy(paramStr);
@@ -56,13 +62,80 @@ namespace Console_FM
             }
         }
 
-        public static void Logger(string text)
+        public static void ListShow(int page)
+        {
+            var maxPages = (DirList.Count / maxListarray)+1;
+            if (DirList.Count % maxListarray == 0)
+                maxPages = maxPages - 1;
+            if (page <= 0)
+                page = 1;
+            if (page > maxPages)
+                page = maxPages;
+
+            Console.SetCursorPosition(0, 4);
+            CMD.ClearCurrentConsoleLine(4,maxListarray);
+            Console.SetCursorPosition(0, 4);
+            for (var i = (page - 1) * maxListarray; i <= DirList.Count; i++)
+            {
+                while (i < maxListarray*page && i < DirList.Count)
+                {
+                    Console.WriteLine(DirList[i]);
+                    i++;
+                }
+            }
+        }
+
+        public static void Logger(string text) //логгер
         {
             File.AppendAllText(logpath, DateTime.Now.ToString("dd-MM-yy HH:mm:ss.fff - ") + text + "\n");
         }
 
-        static void Init()
+        static void ReadSetting(string key)
         {
+            try
+            {
+                var appSettings = ConfigurationManager.AppSettings;
+                string result = appSettings[key] ?? $"Parameter {key} not found";
+                if (result == "Parameter directory not found")
+                {
+                    UpdateSettings("directory", curDir);
+                    UpdateSettings("paginglevel", pagingLevel.ToString());
+                }
+                curDir = appSettings["directory"];
+                pagingLevel = int.Parse(appSettings["pagingLevel"]);
+            }
+            catch (Exception e)
+            {
+                Logger(e.Message);
+            }
+        }
+
+        static void UpdateSettings(string key, string value)
+        {
+            try
+            {
+                var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                var settings = configFile.AppSettings.Settings;
+                if (settings[key] == null)
+                {
+                    settings.Add(key, value);
+                }
+                else
+                {
+                    settings[key].Value = value;
+                }
+                configFile.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection(configFile.AppSettings.SectionInformation.Name);
+            }
+            catch (Exception e)
+            {
+                Logger(e.Message);
+            }
+        }
+
+        static void Init() //блок инициализации
+        {
+            ReadSetting("directory");
             Console.Title = "Консольный файловый менеджер";
             if (!Directory.Exists(curDir))
                 curDir = startDir;
@@ -107,17 +180,11 @@ namespace Console_FM
 
         static void Main(string[] args)
         {
-
             Init();
-            Console.SetCursorPosition(0, 0);
-            for (var i = 1; i <= Console.WindowHeight; i++)
-            {
-                Console.WriteLine(i);
-            }
+            Console.WriteLine(pagingLevel);
             while (true)
             {
-                DirList.Clear();
-                Console.SetCursorPosition(0, Console.WindowHeight-1);
+                Console.SetCursorPosition(0, Console.WindowHeight - 1);
                 CMD.ClearCurrentConsoleLine(Console.WindowHeight - 1, Console.WindowHeight - 1);
                 Console.Write(">");
                 Console.WriteLine();
