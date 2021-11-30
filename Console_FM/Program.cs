@@ -69,7 +69,7 @@ namespace Console_FM
             }
         }
 
-        public static void ListShow(int page)
+        public static void ListShow(int page)//блок постраничного отображения
         {
             Console.SetCursorPosition(5, 2);
             CMD.ClearCurrentConsoleLine(2, 2);
@@ -101,7 +101,7 @@ namespace Console_FM
                         break;
                 }
                 Console.SetCursorPosition(1, Console.WindowHeight - 1);
-                var key = Console.ReadKey(true);
+                var key = Console.ReadKey(true);//перехват кнопок управления
                 if (key.Key == ConsoleKey.UpArrow)
                     page--;
                 if (key.Key == ConsoleKey.DownArrow)
@@ -117,7 +117,7 @@ namespace Console_FM
             File.AppendAllText(logpath, DateTime.Now.ToString("dd-MM-yy HH:mm:ss.fff - ") + text + "\n");
         }
 
-        static void ReadSetting(string key)
+        static void ReadSetting(string key)//чтения файла настроек
         {
             try
             {
@@ -158,7 +158,7 @@ namespace Console_FM
             {
                 Logger(e.Message);
             }
-        }
+        }//обновление файла настроек
 
         static void Init() //блок инициализации
         {
@@ -203,7 +203,6 @@ namespace Console_FM
                 Console.Write("-");
             }
         }
-
 
         static void Main(string[] args)
         {

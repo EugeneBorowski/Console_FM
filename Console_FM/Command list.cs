@@ -15,7 +15,7 @@ namespace Console_FM
     {
         public static List<string> listInfo = new(); //Список для блока информации
 
-        public static void ClearCurrentConsoleLine(int from,int to)
+        public static void ClearCurrentConsoleLine(int from,int to) //чистильщик консоли
         {
             for (int i = from; i <= to; i++)
             {
@@ -24,7 +24,7 @@ namespace Console_FM
                 Console.SetCursorPosition(0, i);
             }
         }
-        static bool CheckForDirectory(string path)
+        static bool CheckForDirectory(string path) //Проверка, файл или директория в запрашиваемом пути
         {
             try
             {
@@ -62,14 +62,12 @@ namespace Console_FM
             return output;
         }
 
-        private static void DirectoryCopy(string source, string target, int run)
+        private static void DirectoryCopy(string source, string target, int run) //блок копирования директорий
         {
             DirectoryInfo dirS = new(source);
             DirectoryInfo dirT = new(target);
             if (!dirT.Exists && run == 0)
-            {
                 target = Path.Combine(target, dirS.Name);
-            }
             if (!dirT.Exists)
                 Directory.CreateDirectory(dirT.FullName);
             DirectoryInfo[] dirs = dirS.GetDirectories();
@@ -87,7 +85,7 @@ namespace Console_FM
             }
         }
 
-        public static void InfoWriter(string text)
+        public static void InfoWriter(string text)//Переписывает информационный блок
         {
             ClearCurrentConsoleLine(Console.WindowHeight - 6, Console.WindowHeight - 3);
             Console.SetCursorPosition(0, Console.WindowHeight - 6);
@@ -99,7 +97,7 @@ namespace Console_FM
             listInfo.Clear();
         }
 
-        public static void List(string path, int dimension)
+        public static void List(string path, int dimension)//команда вывода директорий
         {
             try
             {
@@ -107,11 +105,9 @@ namespace Console_FM
                     path = Program.curDir;
                 var separator = new string('-', dimension);
                 var dirList = new DirectoryInfo(path);
-                if (dimension == 0)
-                {
+                if (dimension == 0)//замена выхода на уровень выше
                     if (path == "..")
                         path = dirList.Parent.FullName;
-                }
                 if (dirList.Exists)
                 {
                     DirectoryInfo[] dirs = dirList.GetDirectories();
@@ -141,7 +137,6 @@ namespace Console_FM
                     listInfo.Add("Директория не найдена");
                     InfoWriter(listInfo.ToString());
                 }
-
             }
             catch (Exception e)
             {
@@ -151,14 +146,14 @@ namespace Console_FM
             }
         }
         
-        public static void Copy(string param)
+        public static void Copy(string param) //блок копирования папок и файлов
         {
             var input = SourceTargetParcer(param);
             if (CheckForDirectory(input.source))
                 try
                 {
                     if (string.IsNullOrEmpty(input.parameter)) //фильтр лишних параметров
-                        DirectoryCopy(input.source,input.target,0);
+                        DirectoryCopy(input.source,input.target,0);//если папка, работаем как с папкой
                 }
                 catch (Exception e)
                 {
@@ -166,7 +161,7 @@ namespace Console_FM
                     listInfo.Add(e.Message);
                     InfoWriter(listInfo.ToString());
                 }
-            else
+            else//иначе работает как с файлом
             {
                 try
                 {
@@ -185,7 +180,7 @@ namespace Console_FM
             }
         }
 
-        public static void Remove(string param)
+        public static void Remove(string param)//блок удаления
         {
             if (CheckForDirectory(param))
                 try
@@ -213,7 +208,7 @@ namespace Console_FM
             }
         }
 
-        public static void Info(string param)
+        public static void Info(string param) //блок вывода информации
         {
             if(CheckForDirectory(param))
                 try
