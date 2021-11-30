@@ -13,7 +13,7 @@ namespace Console_FM
 
     class CMD
     {
-        public static List<string> listInfo = new(); //Список для блока информации 
+        public static List<string> listInfo = new(); //Список для блока информации
 
         public static void ClearCurrentConsoleLine(int from,int to)
         {

@@ -6,14 +6,14 @@ using System.Configuration;
 namespace Console_FM
 {
     class Program
-    { //4-33
+    {
         public static int pagingLevel = 2;//уроень пейджинга по-умолчанию
         public static string input = "";
-        public static string curDir = AppDomain.CurrentDomain.BaseDirectory;//текущая папка, заплатка под изменяющуюся директорию в будущем
+        public static string curDir = AppDomain.CurrentDomain.BaseDirectory;//текущая папка
         public static readonly string startDir = AppDomain.CurrentDomain.BaseDirectory;//директория откуда запускается приложение
         public static List<string> DirList = new();//список директорий и файлов полученный с команды
         public static string logpath = startDir + "errors" + Path.DirectorySeparatorChar + "errors.log";//путь для логов
-        private static int maxListarray = 29;//стандартная высота блока выврда папок и файлов
+        private static int maxListarray = 29;//стандартная высота блока вывода папок и файлов
         
         static void CommandParcer(string input)//парсер команд, разделяет команду и параметры
         {
@@ -64,25 +64,42 @@ namespace Console_FM
 
         public static void ListShow(int page)
         {
-            var maxPages = (DirList.Count / maxListarray)+1;
-            if (DirList.Count % maxListarray == 0)
-                maxPages = maxPages - 1;
-            if (page <= 0)
-                page = 1;
-            if (page > maxPages)
-                page = maxPages;
-
-            Console.SetCursorPosition(0, 4);
-            CMD.ClearCurrentConsoleLine(4,maxListarray);
-            Console.SetCursorPosition(0, 4);
-            for (var i = (page - 1) * maxListarray; i <= DirList.Count; i++)
+            CMD.listInfo.Add("Для пролистывания страниц используйте клавиши вверхи и вниз");
+            CMD.listInfo.Add("Для выхода из режима нажмите клавишу ESC");
+            CMD.InfoWriter(CMD.listInfo.ToString());
+            do
             {
-                while (i < maxListarray*page && i < DirList.Count)
+                var maxPages = (DirList.Count / maxListarray) + 1;
+                if (DirList.Count % maxListarray == 0)
+                    maxPages = maxPages - 1;
+                if (page <= 0)
+                    page = 1;
+                if (page > maxPages)
+                    page = maxPages;
+
+                Console.SetCursorPosition(0, 4);
+                CMD.ClearCurrentConsoleLine(4, maxListarray+3);//высота отображения 
+                Console.SetCursorPosition(0, 4);
+                for (var i = (page - 1) * maxListarray; i <= DirList.Count; i++)
                 {
-                    Console.WriteLine(DirList[i]);
-                    i++;
+                    while (i < maxListarray * page && i < DirList.Count)
+                    {
+                        Console.WriteLine(DirList[i]);
+                        i++;
+                    }
+                    if(i > maxListarray * page)
+                        break;
                 }
-            }
+                Console.SetCursorPosition(1, Console.WindowHeight - 1);
+                var key = Console.ReadKey(true);
+                if (key.Key == ConsoleKey.UpArrow)
+                    page--;
+                if (key.Key == ConsoleKey.DownArrow)
+                    page++;
+                if (key.Key == ConsoleKey.Escape)
+                    break;
+            } while (true);
+            CMD.ClearCurrentConsoleLine(Console.WindowHeight - 6, Console.WindowHeight - 3);
         }
 
         public static void Logger(string text) //логгер
@@ -135,13 +152,13 @@ namespace Console_FM
 
         static void Init() //блок инициализации
         {
-            ReadSetting("directory");
             Console.Title = "Консольный файловый менеджер";
             if (!Directory.Exists(curDir))
                 curDir = startDir;
             if (!Directory.Exists("errors"))
                 Directory.CreateDirectory("errors");
             Logger("Log started");
+            ReadSetting("directory");
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine("Path: " + curDir);
