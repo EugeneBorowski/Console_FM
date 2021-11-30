@@ -40,7 +40,7 @@ namespace Console_FM
             }
         }
 
-        private static SourceTarget SourceTargetParcer(string param)
+        private static SourceTarget SourceTargetParcer(string param) //парсим путь источника и назначния
         {
             var output = new SourceTarget();
             var strs = param.Split(' ',StringSplitOptions.RemoveEmptyEntries);
@@ -107,6 +107,11 @@ namespace Console_FM
                     path = Program.curDir;
                 var separator = new string('-', dimension);
                 var dirList = new DirectoryInfo(path);
+                if (dimension == 0)
+                {
+                    if (path == "..")
+                        path = dirList.Parent.FullName;
+                }
                 if (dirList.Exists)
                 {
                     DirectoryInfo[] dirs = dirList.GetDirectories();
@@ -152,9 +157,8 @@ namespace Console_FM
             if (CheckForDirectory(input.source))
                 try
                 {
-                    if (!string.IsNullOrEmpty(input.parameter)) //фильтр лишних параметров
-
-                    DirectoryCopy(input.source,input.target,0);
+                    if (string.IsNullOrEmpty(input.parameter)) //фильтр лишних параметров
+                        DirectoryCopy(input.source,input.target,0);
                 }
                 catch (Exception e)
                 {
@@ -166,7 +170,11 @@ namespace Console_FM
             {
                 try
                 {
-                    File.Copy(input.source, input.target, true);
+                    var fileIn = new FileInfo(input.source);
+                    var fileOut = new FileInfo(input.target);
+                    if (!Directory.Exists(fileOut.FullName))
+                        Directory.CreateDirectory(fileOut.FullName);//если целевой папки нет, создаем ее
+                    File.Copy(input.source, input.target+ Path.DirectorySeparatorChar+ fileIn.Name, true);
                 }
                 catch (Exception e)
                 {

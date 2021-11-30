@@ -31,17 +31,24 @@ namespace Console_FM
                     paramStr += input[e];
                 command = command.ToLower();
                 paramStr = paramStr.TrimStart();
+                var dir = new DirectoryInfo(curDir);
+                if (paramStr == "..")
+                    paramStr = curDir = dir.Parent.FullName;
             }
-           
+
             switch (command)
             {
                 case "list":
                     DirList.Clear();
                     var dimension = 0;
                     CMD.List(paramStr,dimension);
-                    ListShow(1);
-                    curDir = paramStr;
-                    UpdateSettings("directory", curDir);
+                    var dirList = new DirectoryInfo(paramStr);
+                    if(dirList.Exists)
+                    {
+                        ListShow(1);
+                        curDir = paramStr;
+                        UpdateSettings("directory", curDir);
+                    }
                     return;
                 case "copy":
                     CMD.Copy(paramStr);
@@ -64,6 +71,9 @@ namespace Console_FM
 
         public static void ListShow(int page)
         {
+            Console.SetCursorPosition(5, 2);
+            CMD.ClearCurrentConsoleLine(2, 2);
+            Console.Write("Path: " + $"{curDir}");
             CMD.listInfo.Add("Для пролистывания страниц используйте клавиши вверхи и вниз");
             CMD.listInfo.Add("Для выхода из режима нажмите клавишу ESC");
             CMD.InfoWriter(CMD.listInfo.ToString());
