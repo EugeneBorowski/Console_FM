@@ -35,7 +35,7 @@ namespace Console_FM
             {
                 Program.Logger(e.Message);
                 listInfo.Add(e.Message);
-                InfoWriter(listInfo.ToString());
+                InfoWriter();
                 return false;
             }
         }
@@ -57,7 +57,7 @@ namespace Console_FM
                 Program.Logger(e.Message);
                 listInfo.Add(e.Message);
                 listInfo.Add("Неправильно заданы параметры");
-                InfoWriter(listInfo.ToString());
+                InfoWriter();
             }
             return output;
         }
@@ -85,7 +85,7 @@ namespace Console_FM
             }
         }
 
-        public static void InfoWriter(string text)//Переписывает информационный блок
+        public static void InfoWriter()//Переписывает информационный блок
         {
             ClearCurrentConsoleLine(Console.WindowHeight - 6, Console.WindowHeight - 3);
             Console.SetCursorPosition(0, Console.WindowHeight - 6);
@@ -135,14 +135,14 @@ namespace Console_FM
                 else
                 {
                     listInfo.Add("Директория не найдена");
-                    InfoWriter(listInfo.ToString());
+                    InfoWriter();
                 }
             }
             catch (Exception e)
             {
                 Program.Logger(e.Message);
                 listInfo.Add(e.Message);
-                InfoWriter(listInfo.ToString());
+                InfoWriter();
             }
         }
         
@@ -159,7 +159,7 @@ namespace Console_FM
                 {
                     Program.Logger(e.Message);
                     listInfo.Add(e.Message);
-                    InfoWriter(listInfo.ToString());
+                    InfoWriter();
                 }
             else//иначе работает как с файлом
             {
@@ -175,7 +175,7 @@ namespace Console_FM
                 {
                     Program.Logger(e.Message);
                     listInfo.Add(e.Message);
-                    InfoWriter(listInfo.ToString());
+                    InfoWriter();
                 }
             }
         }
@@ -191,7 +191,7 @@ namespace Console_FM
                 {
                     Program.Logger(e.Message);
                     listInfo.Add(e.Message);
-                    InfoWriter(listInfo.ToString());
+                    InfoWriter();
                 }
             else
             {
@@ -203,7 +203,7 @@ namespace Console_FM
                 {
                     Program.Logger(e.Message);
                     listInfo.Add(e.Message);
-                    InfoWriter(listInfo.ToString());
+                    InfoWriter();
                 }
             }
         }
@@ -216,13 +216,13 @@ namespace Console_FM
                     var dir = new DirectoryInfo(param);
                     listInfo.Add($"name: {dir.Name}");
                     listInfo.Add($"attributes :{dir.Attributes}");
-                    InfoWriter(listInfo.ToString());
+                    InfoWriter();
                 }
                 catch (Exception e)
                 {
                     Program.Logger(e.Message);
                     listInfo.Add(e.Message);
-                    InfoWriter(listInfo.ToString());
+                    InfoWriter();
                 }
             else
             {
@@ -232,13 +232,13 @@ namespace Console_FM
                     listInfo.Add($"name: {file.Name}");
                     listInfo.Add($"size: {file.Length} bytes");
                     listInfo.Add($"attributes: {file.Attributes}");
-                    InfoWriter(listInfo.ToString());
+                    InfoWriter();
                 }
                 catch (Exception e)
                 {
                     Program.Logger(e.Message);
                     listInfo.Add(e.Message);
-                    InfoWriter(listInfo.ToString());
+                    InfoWriter();
                 }
             }
         }

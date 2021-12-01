@@ -13,7 +13,7 @@ namespace Console_FM
         public static readonly string startDir = AppDomain.CurrentDomain.BaseDirectory;//директория откуда запускается приложение
         public static List<string> DirList = new();//список директорий и файлов полученный с команды
         public static string logpath = startDir + "errors" + Path.DirectorySeparatorChar + "errors.log";//путь для логов
-        private static int maxListarray = 29;//стандартная высота блока вывода папок и файлов
+        private static int maxListarray = 19;//стандартная высота блока вывода папок и файлов для стандартного окна минус высота блока информации и пути
         
         static void CommandParcer(string input)//парсер команд, разделяет команду и параметры
         {
@@ -64,7 +64,7 @@ namespace Console_FM
                     return;
                 default:
                     CMD.listInfo.Add("Неправильный формат команды");
-                    CMD.InfoWriter(CMD.listInfo.ToString());
+                    CMD.InfoWriter();
                     return;
             }
         }
@@ -76,12 +76,12 @@ namespace Console_FM
             Console.Write("Path: " + $"{curDir}");
             CMD.listInfo.Add("Для пролистывания страниц используйте клавиши вверхи и вниз");
             CMD.listInfo.Add("Для выхода из режима нажмите клавишу ESC");
-            CMD.InfoWriter(CMD.listInfo.ToString());
+            CMD.InfoWriter();
             do
             {
                 var maxPages = (DirList.Count / maxListarray) + 1;
                 if (DirList.Count % maxListarray == 0)
-                    maxPages = maxPages - 1;
+                    maxPages--;
                 if (page <= 0)
                     page = 1;
                 if (page > maxPages)
@@ -172,17 +172,6 @@ namespace Console_FM
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine("Path: " + curDir);
-            
-            try
-            {
-                Console.WindowHeight = 40;
-            }
-            catch (Exception e)
-            {
-                Logger(e.Message);
-                CMD.listInfo.Add(e.Message);
-                CMD.InfoWriter(CMD.listInfo.ToString());
-            }
             
             for (int i = 1; i <= Console.WindowWidth; i++) //блок директорий
             {
