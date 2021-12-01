@@ -132,13 +132,17 @@ namespace Console_FM
                 string xmlText = File.ReadAllText(configFileName);
                 StringReader stringReader = new (xmlText);
                 XmlSerializer serializer = new (typeof(Settings));
-                Settings settings = (Settings) serializer.Deserialize(stringReader);
-                if (string.IsNullOrEmpty(settings.directory) && settings.paginglevel <= 0)
-                    UpdateSettings();
+                Settings tempSettings = (Settings) serializer.Deserialize(stringReader);
+                if (!Directory.Exists(tempSettings.directory) || tempSettings.paginglevel <= 0)
+                {
+                    throw new Exception("Не валидный файл настроек");
+                }
             }
             catch (Exception e)
             {
                 Logger(e.Message);
+                settings.directory = curDir;
+                settings.paginglevel = 2;
                 UpdateSettings();
             }
         }
@@ -147,8 +151,6 @@ namespace Console_FM
         {
             try
             {
-                settings.directory = curDir;
-                settings.paginglevel = 2;
                 StringWriter stringWriter = new ();
                 XmlSerializer xmlSerializer = new (typeof(Settings));
                 xmlSerializer.Serialize(stringWriter, settings);
