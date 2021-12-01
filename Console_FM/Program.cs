@@ -5,6 +5,7 @@ using System.Configuration;
 
 namespace Console_FM
 {
+
     class Program
     {
         public static int pagingLevel = 2;//уроень пейджинга по-умолчанию
@@ -196,7 +197,6 @@ namespace Console_FM
         static void Main(string[] args)
         {
             Init();
-            Console.WriteLine(pagingLevel);
             while (true)
             {
                 Console.SetCursorPosition(0, Console.WindowHeight - 1);
