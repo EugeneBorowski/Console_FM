@@ -112,7 +112,7 @@ namespace Console_FM
                 {
                     DirectoryInfo[] dirs = dirList.GetDirectories();
                     FileInfo[] files = dirList.GetFiles();
-                    if (dimension > Program.pagingLevel)
+                    if (dimension > Program.settings.paginglevel)
                         return;
                     foreach (var e in dirs)
                     {

@@ -1,14 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Configuration;
+using System.Text;
+using System.Xml.Serialization;
 
 namespace Console_FM
 {
+    public class Settings
+    {
+        public string directory { get; set; }
+        public int paginglevel { get; set; }
+    }
 
     class Program
     {
-        public static int pagingLevel = 2;//уроень пейджинга по-умолчанию
+        public static Settings settings = new();
+        private static readonly string configFileName = "appsettings.xml";
         public static string input = "";
         public static string curDir = AppDomain.CurrentDomain.BaseDirectory;//текущая папка
         public static readonly string startDir = AppDomain.CurrentDomain.BaseDirectory;//директория откуда запускается приложение
@@ -48,7 +55,7 @@ namespace Console_FM
                     {
                         curDir = paramStr;
                         ListShow(1);
-                        UpdateSettings("directory", curDir);
+                        UpdateSettings();
                     }
                     return;
                 case "copy":
@@ -118,48 +125,41 @@ namespace Console_FM
             File.AppendAllText(logpath, DateTime.Now.ToString("dd-MM-yy HH:mm:ss.fff - ") + text + "\n");
         }
 
-        static void ReadSetting(string key)//чтения файла настроек
+        static void ReadSetting()//чтения файла настроек
         {
             try
             {
-                var appSettings = ConfigurationManager.AppSettings;
-                string result = appSettings[key] ?? $"Parameter {key} not found";
-                if (result == "Parameter directory not found")
-                {
-                    UpdateSettings("directory", curDir);
-                    UpdateSettings("paginglevel", pagingLevel.ToString());
-                }
-                curDir = appSettings["directory"];
-                pagingLevel = int.Parse(appSettings["pagingLevel"]);
+                string xmlText = File.ReadAllText(configFileName);
+                StringReader stringReader = new (xmlText);
+                XmlSerializer serializer = new (typeof(Settings));
+                Settings settings = (Settings) serializer.Deserialize(stringReader);
+                if (string.IsNullOrEmpty(settings.directory) && settings.paginglevel <= 0)
+                    UpdateSettings();
+            }
+            catch (Exception e)
+            {
+                Logger(e.Message);
+                UpdateSettings();
+            }
+        }
+
+        static void UpdateSettings()//запись файла настроек
+        {
+            try
+            {
+                settings.directory = curDir;
+                settings.paginglevel = 2;
+                StringWriter stringWriter = new ();
+                XmlSerializer xmlSerializer = new (typeof(Settings));
+                xmlSerializer.Serialize(stringWriter, settings);
+                string xml = stringWriter.ToString();
+                File.WriteAllText(configFileName, xml, Encoding.UTF8);
             }
             catch (Exception e)
             {
                 Logger(e.Message);
             }
         }
-
-        static void UpdateSettings(string key, string value)
-        {
-            try
-            {
-                var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                var settings = configFile.AppSettings.Settings;
-                if (settings[key] == null)
-                {
-                    settings.Add(key, value);
-                }
-                else
-                {
-                    settings[key].Value = value;
-                }
-                configFile.Save(ConfigurationSaveMode.Modified);
-                ConfigurationManager.RefreshSection(configFile.AppSettings.SectionInformation.Name);
-            }
-            catch (Exception e)
-            {
-                Logger(e.Message);
-            }
-        }//обновление файла настроек
 
         static void Init() //блок инициализации
         {
@@ -169,7 +169,7 @@ namespace Console_FM
             if (!Directory.Exists("errors"))
                 Directory.CreateDirectory("errors");
             Logger("Log started");
-            ReadSetting("directory");
+            ReadSetting();
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine("Path: " + curDir);
@@ -194,7 +194,7 @@ namespace Console_FM
             }
         }
 
-        static void Main(string[] args)
+        static void Main()
         {
             Init();
             while (true)
