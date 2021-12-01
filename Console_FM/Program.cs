@@ -13,7 +13,7 @@ namespace Console_FM
         public static readonly string startDir = AppDomain.CurrentDomain.BaseDirectory;//директория откуда запускается приложение
         public static List<string> DirList = new();//список директорий и файлов полученный с команды
         public static string logpath = startDir + "errors" + Path.DirectorySeparatorChar + "errors.log";//путь для логов
-        private static int maxListarray = 19;//стандартная высота блока вывода папок и файлов для стандартного окна минус высота блока информации и пути
+        private static int maxListarray = Console.WindowHeight-11;//стандартная высота блока вывода папок и файлов для стандартного окна минус высота блока информации и пути
         
         static void CommandParcer(string input)//парсер команд, разделяет команду и параметры
         {
@@ -45,8 +45,8 @@ namespace Console_FM
                     var dirList = new DirectoryInfo(paramStr);
                     if(dirList.Exists)
                     {
-                        ListShow(1);
                         curDir = paramStr;
+                        ListShow(1);
                         UpdateSettings("directory", curDir);
                     }
                     return;
