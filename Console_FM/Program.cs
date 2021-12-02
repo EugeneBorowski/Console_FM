@@ -55,7 +55,7 @@ namespace Console_FM
                     var dirList = new DirectoryInfo(paramStr);
                     if(dirList.Exists)
                     {
-                        curDir = paramStr;
+                        settings.directory = curDir = paramStr;
                         ListShow(1);
                         UpdateSettings();
                     }
@@ -139,6 +139,8 @@ namespace Console_FM
                 {
                     throw new Exception("Не валидный файл настроек");
                 }
+                settings.directory = tempSettings.directory;
+                settings.paginglevel = tempSettings.paginglevel;
             }
             catch (Exception e)
             {
@@ -176,7 +178,7 @@ namespace Console_FM
             ReadSetting();
             Console.WriteLine();
             Console.WriteLine();
-            Console.WriteLine("Path: " + curDir);
+            Console.WriteLine("Path: " + settings.directory);
             
             for (int i = 1; i <= Console.WindowWidth; i++) //блок директорий
             {
