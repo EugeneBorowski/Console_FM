@@ -47,6 +47,8 @@ namespace Console_FM
             switch (command)
             {
                 case "list":
+                    if (string.IsNullOrEmpty(paramStr))
+                        paramStr = Program.curDir;
                     DirList.Clear();
                     var dimension = 0;
                     CMD.List(paramStr,dimension);

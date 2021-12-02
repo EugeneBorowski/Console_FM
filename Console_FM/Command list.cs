@@ -101,8 +101,6 @@ namespace Console_FM
         {
             try
             {
-                if (string.IsNullOrEmpty(path))
-                    path = Program.curDir;
                 var separator = new string('-', dimension);
                 var dirList = new DirectoryInfo(path);
                 if (dimension == 0)//замена выхода на уровень выше
